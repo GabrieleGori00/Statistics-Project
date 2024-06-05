@@ -1,0 +1,87 @@
+---
+title: "Statistics Project"
+output: html_notebook
+---
+
+
+```{r}
+# Load required packages
+library(dplyr)
+```
+```{r}
+# Generare dati di esempio
+set.seed(123)  # Per riproducibilità
+
+```
+```{r}
+# Risposte del sondaggio (ipotizziamo 4 possibili risposte: A, B, C, D)
+risposte <- c("A", "B", "C", "D")
+```
+```{r}
+# Generare risposte per chi ha vissuto un uragano
+n_uragano <- 100
+risposte_uragano <- sample(risposte, n_uragano, replace = TRUE, prob = c(0.25, 0.25, 0.25, 0.25))
+```
+```{r}
+# Generare risposte per chi non ha vissuto un uragano
+n_no_uragano <- 100
+risposte_no_uragano <- sample(risposte, n_no_uragano, replace = TRUE, prob = c(0.25, 0.25, 0.25, 0.25))
+
+```
+```{r}
+# Calcolare le frequenze delle risposte
+freq_uragano <- table(risposte_uragano)
+freq_no_uragano <- table(risposte_no_uragano)
+```
+```{r}
+# Convertire le frequenze in distribuzioni cumulative
+cdf_uragano <- cumsum(freq_uragano) / n_uragano
+cdf_no_uragano <- cumsum(freq_no_uragano) / n_no_uragano
+```
+```{r}
+# Test di Kolmogorov-Smirnov
+ks_test <- ks.test(freq_uragano, freq_no_uragano)
+print(ks_test)
+```
+```{r}
+# Test chi-quadro
+chi_square_test <- chisq.test(freq_uragano, freq_no_uragano)
+print(chi_square_test)
+```
+```{r}
+# Unire le risposte C e D per rendere la distribuzione più skewed
+risposte_skewed <- c("A", "B", "CD")
+```
+```{r}
+# Aggregare le risposte C e D
+aggrega_risposte <- function(risposte) {
+  risposte <- as.character(risposte)
+  risposte[risposte == "C" | risposte == "D"] <- "CD"
+  return(risposte)
+}
+```
+```{r}
+risposte_uragano_skewed <- aggrega_risposte(risposte_uragano)
+risposte_no_uragano_skewed <- aggrega_risposte(risposte_no_uragano)
+```
+```{r}
+# Calcolare le nuove frequenze delle risposte
+freq_uragano_skewed <- table(risposte_uragano_skewed)
+freq_no_uragano_skewed <- table(risposte_no_uragano_skewed)
+```
+```{r}
+# Convertire le frequenze in distribuzioni cumulative
+cdf_uragano_skewed <- cumsum(freq_uragano_skewed) / n_uragano
+cdf_no_uragano_skewed <- cumsum(freq_no_uragano_skewed) / n_no_uragano
+```
+```{r}
+# Test di Kolmogorov-Smirnov sulle distribuzioni skewed
+ks_test_skewed <- ks.test(freq_uragano_skewed, freq_no_uragano_skewed)
+print(ks_test_skewed)
+```
+```{r}
+# Test chi-quadro sulle distribuzioni skewed
+chi_square_test_skewed <- chisq.test(freq_uragano_skewed, freq_no_uragano_skewed)
+print(chi_square_test_skewed)
+```
+
