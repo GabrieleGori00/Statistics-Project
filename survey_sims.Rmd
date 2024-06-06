@@ -1,0 +1,56 @@
+---
+title: "Statistics Project - Survey"
+output: html_notebook
+---
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(tidyr)
+
+# Example survey data 
+# Assume survey_data is a data frame with columns: 'group' (indicating treatment/control), and 'response' (ordered categorical responses)
+survey_data <- data.frame(
+  group = rep(c('control', 'treatment'), each = 50),
+  response = c(sample(1:5, 50, replace = TRUE), sample(1:5, 50, replace = TRUE))
+)
+
+# Function to perform the discrete KS test
+discrete_ks_test <- function(x, y) {
+  # Calculate empirical cdfs
+  x_ecdf <- ecdf(x)
+  y_ecdf <- ecdf(y)
+  
+  # Discrete KS statistic
+  ks_stat <- max(abs(x_ecdf(unique(c(x, y))) - y_ecdf(unique(c(x, y)))))
+  
+  # Return KS statistic
+  return(ks_stat)
+}
+
+# Function to perform the chi-square test
+chi_square_test <- function(x, y) {
+  # Create contingency table
+  table <- table(factor(x, levels = unique(c(x, y))), factor(y, levels = unique(c(x, y))))
+  
+  # Perform chi-square test
+  chi_sq_result <- chisq.test(table)
+  
+  # Return chi-square statistic
+  return(chi_sq_result$statistic)
+}
+
+# Separate the data into control and treatment groups
+control_data <- survey_data %>% filter(group == 'control') %>% pull(response)
+treatment_data <- survey_data %>% filter(group == 'treatment') %>% pull(response)
+
+# Perform the tests
+ks_stat <- discrete_ks_test(control_data, treatment_data)
+chi_sq_stat <- chi_square_test(control_data, treatment_data)
+
+# Output the results
+cat("Discrete KS Test Statistic: ", ks_stat, "\n")
+cat("Chi-Square Test Statistic: ", chi_sq_stat, "\n")
+
+```
+
