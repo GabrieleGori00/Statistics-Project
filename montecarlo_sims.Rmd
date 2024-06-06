@@ -1,0 +1,87 @@
+---
+title: "Statisitc Project - Monte Carlo simulations"
+output: html_notebook
+---
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+
+# Function to perform the discrete KS test
+discrete_ks_test <- function(x, y) {
+  # Calculate empirical cdfs
+  x_ecdf <- ecdf(x)
+  y_ecdf <- ecdf(y)
+  
+  # Discrete KS statistic
+  ks_stat <- max(abs(x_ecdf(unique(c(x, y))) - y_ecdf(unique(c(x, y)))))
+  
+  # Return KS statistic
+  return(ks_stat)
+}
+
+# Function to perform the chi-square test
+chi_square_test <- function(x, y) {
+  # Create contingency table
+  table <- table(factor(x, levels = unique(c(x, y))), factor(y, levels = unique(c(x, y))))
+  
+  # Perform chi-square test
+  chi_sq_result <- chisq.test(table)
+  
+  # Return chi-square statistic
+  return(chi_sq_result$statistic)
+}
+
+# Function to run Monte Carlo simulations
+run_simulation <- function(n, dist_shape) {
+  # Generate data according to specified distribution shape
+  if (dist_shape == "uniform") {
+    x <- sample(1:5, n, replace = TRUE)
+    y <- sample(1:5, n, replace = TRUE)
+  } else if (dist_shape == "skewed") {
+    x <- rbinom(n, 4, 0.7) + 1
+    y <- rbinom(n, 4, 0.3) + 1
+  } else if (dist_shape == "bimodal") {
+    x <- sample(c(1, 5), n, replace = TRUE)
+    y <- sample(c(1, 5), n, replace = TRUE)
+  }
+  
+  # Perform tests
+  ks_stat <- discrete_ks_test(x, y)
+  chi_sq_stat <- chi_square_test(x, y)
+  
+  return(c(ks_stat, chi_sq_stat))
+}
+
+# Parameters
+n_simulations <- 1000
+sample_size <- 50
+distribution_shapes <- c("uniform", "skewed", "bimodal")
+
+# Run simulations
+results <- data.frame()
+for (dist_shape in distribution_shapes) {
+  for (i in 1:n_simulations) {
+    res <- run_simulation(sample_size, dist_shape)
+    results <- rbind(results, c(dist_shape, res[1], res[2]))
+  }
+}
+
+# Convert results to dataframe
+colnames(results) <- c("Distribution", "KS_Statistic", "Chi_Square_Statistic")
+results <- as.data.frame(results)
+results$KS_Statistic <- as.numeric(as.character(results$KS_Statistic))
+results$Chi_Square_Statistic <- as.numeric(as.character(results$Chi_Square_Statistic))
+
+# Analyze results
+summary_results <- results %>%
+  group_by(Distribution) %>%
+  summarize(
+    Mean_KS_Stat = mean(KS_Statistic),
+    Mean_Chi_Square_Stat = mean(Chi_Square_Statistic)
+  )
+
+print(summary_results)
+
+```
+
