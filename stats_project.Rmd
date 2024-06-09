@@ -34,10 +34,23 @@ freq_hurricane <- table(answers_hurricane)
 freq_no_hurricane <- table(answers_no_hurricane)
 ```
 ```{r}
+freq_hurricane
+```
+```{r}
+freq_no_hurricane
+```
+```{r}
 # Convert frequencies to cumulative distributions
 cdf_hurricane <- cumsum(freq_hurricane) / n_hurricane
 cdf_no_hurricane <- cumsum(freq_no_hurricane) / n_no_hurricane
 ```
+```{r}
+cdf_hurricane
+```
+```{r}
+cdf_no_hurricane
+```
+
 ```{r}
 # Kolmogorov-Smirnov test
 ks_test <- ks.test(freq_hurricane, freq_no_hurricane)
@@ -47,6 +60,9 @@ print(ks_test)
 # Chi-square test
 chi_square_test <- chisq.test(freq_hurricane, freq_no_hurricane)
 print(chi_square_test)
+```
+```{r}
+## Both the Kolmogorov-Smirnov test and Pearson's Chi-squared test suggest that there is no statistically significant difference between the distributions of freq_hurricane and freq_no_hurricane.
 ```
 ```{r}
 # Join answers C and D to make the distribution more skewed
@@ -84,4 +100,6 @@ print(ks_test_skewed)
 chi_square_test_skewed <- chisq.test(freq_hurricane_skewed, freq_no_hurricane_skewed)
 print(chi_square_test_skewed)
 ```
-
+```{r}
+## The skewed distributions of the two groups (hurricane and no hurricane) are still similar and not distinguishable.
+```
