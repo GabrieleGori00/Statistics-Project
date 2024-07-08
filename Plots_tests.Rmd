@@ -1,0 +1,79 @@
+---
+title: "Statisitc Project - Plot tests"
+output: html_notebook
+---
+
+```{r}
+# Generate some data
+data = rbinom(50, 4, 0.7) + 1
+
+# Calculate empirical cumulative distribution function
+p = ecdf(data)
+
+# Plot empirical cumulative distribution function
+plot(p, lty=2, main='Comparing distributions')
+
+# add another distribuition
+data2 = rbinom(50, 4, 0.7) + 1
+p_norm = ecdf(data2)
+lines(p_norm, lty = 1, col='red')
+
+# Add a legend
+legend("bottomright", legend = c("Data", "Data2"), lty = c(2, 1), col = c("black", "red"))
+
+```
+
+```{r}
+# Set the seed for reproducibility
+set.seed(12)
+
+# Parameters
+n_customers <- 500  # Number of customers
+prob_purchase <- 0.1  # Probability of making a purchase
+
+# Use rbinom to generate data
+purchases <- rbinom(n_customers, 1, prob_purchase)
+
+# View the first few results
+head(purchases)
+```
+```{r}
+# Set the number of observations
+n <- 1000
+
+# Set the beta coefficients
+beta1 <- 1
+beta2 <- 1
+
+# Generate the random variables x_i1 and x_i2
+x_i1 <- 3*runif(n, 0, 1) + 1
+x_i2 <- 2 * runif(n, 0, 1) - 1
+
+# Generate the error term e_i
+e_i <- qnorm(runif(n, 0, 1))
+
+# Compute y_i for each observation
+y_i <- beta1 * x_i1 + beta2 * x_i2 + e_i
+```
+
+```{r}
+print(y_i)
+```
+```{r}
+# Define the four-category variable
+Y_C_four_categories <- ifelse(y_i <= 2, 1,
+               ifelse(y_i > 2 & y_i <= 3, 2,
+                      ifelse(y_i > 3 & y_i <= 4, 3, 4)))
+
+print(Y_C_four_categories)
+```
+```{r}
+p = ecdf(Y_C_four_categories)
+
+# Plot empirical cumulative distribution function
+plot(p, lty=1, main='Plotting distribution')
+```
+```{r}
+print(p)
+```
+
