@@ -1,0 +1,258 @@
+---
+title: "Statisitc Project - Plot tests"
+output: html_notebook
+---
+
+```{r}
+# Generate some data
+data = rbinom(50, 4, 0.7) + 1
+
+# Calculate empirical cumulative distribution function
+p = ecdf(data)
+
+# Plot empirical cumulative distribution function
+plot(p, lty=2, main='Comparing distributions')
+
+# add another distribuition
+data2 = rbinom(50, 4, 0.7) + 1
+p_norm = ecdf(data2)
+lines(p_norm, lty = 1, col='red')
+
+# Add a legend
+legend("bottomright", legend = c("Data", "Data2"), lty = c(2, 1), col = c("black", "red"))
+
+```
+
+```{r}
+# Set the seed for reproducibility
+#set.seed(112)
+
+# Parameters
+n_customers <- 500  # Number of customers
+prob_purchase <- 0.1  # Probability of making a purchase
+
+# Use rbinom to generate data
+purchases <- rbinom(n_customers, 1, prob_purchase)
+
+# View the first few results
+head(purchases)
+```
+```{r}
+# Set the number of observations
+n <- 5000
+
+# Set the beta coefficients
+beta1 <- 0.80
+beta2 <- 1.25
+sigma <- 1
+
+# Generate the random variables x_i1 and x_i2
+x_i1 <- 3*runif(n, 0, 1) + 1
+x_i2 <- 2*runif(n, 0, 1) - 1
+
+# Generate the error term e_i
+e_i <- qnorm(runif(n, 0, 1))
+
+# Compute y_i for each observation
+y_i <- beta1 * x_i1 + beta2 * x_i2 + sigma * e_i
+```
+
+```{r}
+# Set the number of observations
+n <- 5000
+
+# Set the beta coefficients
+beta1_2 <- 0.75
+beta2_2 <- 1.25
+sigma_2 <- 1
+
+# Generate the random variables x_i1 and x_i2
+x_i1 <- 3*runif(n, 0, 1) + 1
+x_i2 <- 2*runif(n, 0, 1) - 1
+
+# Generate the error term e_i
+e_i <- qnorm(runif(n, 0, 1))
+
+# Compute y_i for each observation
+y_i_2 <- beta1_2 * x_i1 + beta2_2 * x_i2 + sigma_2 * e_i
+```
+
+```{r}
+print(y_i)
+```
+```{r}
+# Define the four-category variable
+Y_C_four_categories <- ifelse(y_i <= 2, 1,
+               ifelse(y_i > 2 & y_i <= 3, 2,
+                      ifelse(y_i > 3 & y_i <= 4, 3, 4)))
+
+print(Y_C_four_categories)
+
+# Define the four-category variable
+Y_C_four_categories_2 <- ifelse(y_i_2 <= 2, 1,
+               ifelse(y_i_2 > 2 & y_i_2 <= 3, 2,
+                      ifelse(y_i_2 > 3 & y_i_2 <= 4, 3, 4)))
+
+print(Y_C_four_categories_2)
+```
+```{r}
+p = ecdf(Y_C_four_categories)
+
+# Plot empirical cumulative distribution function
+plot(p, lty=1, main='Plotting distribution')
+```
+```{r}
+# Calculate empirical cumulative distribution function
+p = ecdf(Y_C_four_categories)
+
+# Plot empirical cumulative distribution function
+plot(p, lty=2, main='Comparing distributions')
+
+# add another distribuition
+data2 = rbinom(50, 4, 0.7) + 1
+p_2 = ecdf(Y_C_four_categories_2)
+lines(p_2, lty = 1, col='red')
+
+# Add a legend
+legend("bottomright", legend = c("Data", "Data2"), lty = c(2, 1), col = c("black", "red"))
+
+```
+```{r}
+# Load necessary libraries
+library(dplyr)
+
+# Function to perform the discrete KS test
+discrete_ks_test <- function(x, y) {
+  # Calculate empirical cdfs
+  x_ecdf <- ecdf(x)
+  y_ecdf <- ecdf(y)
+  
+  # Discrete KS statistic
+  ks_stat <- max(abs(x_ecdf(unique(c(x, y))) - y_ecdf(unique(c(x, y)))))
+  
+  # Return KS statistic
+  return(ks_stat)
+}
+
+# Function to perform the chi-square test
+chi_square_test <- function(x, y) {
+  # Create contingency table
+  table <- table(factor(x, levels = unique(c(x, y))), factor(y, levels = unique(c(x, y))))
+  
+  # Perform chi-square test
+  chi_sq_result <- chisq.test(table)
+  
+  # Return chi-square statistic
+  return(chi_sq_result$statistic)
+}
+```
+
+
+```{r}
+# Set the number of observations
+n <- 50
+
+# Generate the random variables x_i1 and x_i2
+x_i1 <- 3*runif(n, 0, 1) + 1
+x_i2 <- 2*runif(n, 0, 1) - 1
+
+# Generate the error term e_i
+e_i <- qnorm(runif(n, 0, 1))
+
+
+# Function to run Monte Carlo simulations
+run_simulation <- function(n, dist_shape) {
+  x_i1 <- 3*runif(n, 0, 1) + 1
+  x_i2 <- 2*runif(n, 0, 1) - 1
+  e_i <- qnorm(runif(n, 0, 1))
+  
+  # Generate data according to specified distribution shape
+  if (dist_shape == "right skewed") {
+    # Set the beta coefficients
+    beta1 <- 0.80
+    beta2 <- 1.25
+    sigma <- 1
+    beta1_2 <- 0.75
+    beta2_2 <- 1.25
+    sigma_2 <- 1
+    
+    x <- beta1 * x_i1 + beta2 * x_i2 + sigma * e_i
+    y <- beta1_2 * x_i1 + beta2_2 * x_i2 + sigma_2 * e_i
+  } else if (dist_shape == "left skewed") {
+    # Set the beta coefficients
+    beta1 <- 1.70
+    beta2 <- 1.25
+    sigma <- 1
+    beta1_2 <- 1.75
+    beta2_2 <- 1.25
+    sigma_2 <- 1
+    
+    x <- beta1 * x_i1 + beta2 * x_i2 + sigma * e_i
+    y <- beta1_2 * x_i1 + beta2_2 * x_i2 + sigma_2 * e_i
+  } else if (dist_shape == "bimodal") {
+    # Set the beta coefficients
+    beta1 <- 1
+    beta2 <- 1
+    sigma <- 3.5
+    beta1_2 <- 1
+    beta2_2 <- 1
+    sigma_2 <- 4
+    
+    x <- beta1 * x_i1 + beta2 * x_i2 + sigma * e_i
+    y <- beta1_2 * x_i1 + beta2_2 * x_i2 + sigma_2 * e_i
+  } else if (dist_shape == "uniform") {
+    # Set the beta coefficients
+    beta1 <- 1
+    beta2 <- 1.5
+    sigma <- 1
+    beta1_2 <- 1
+    beta2_2 <- 1
+    sigma_2 <- 1
+    
+    x <- beta1 * x_i1 + beta2 * x_i2 + sigma * e_i
+    y <- beta1_2 * x_i1 + beta2_2 * x_i2 + sigma_2 * e_i
+  }
+  
+  # Perform tests
+  ks_stat <- discrete_ks_test(x, y)
+  chi_sq_stat <- chi_square_test(x, y)
+  
+  return(c(ks_stat, chi_sq_stat))
+}
+```
+
+
+```{r}
+# Parameters
+n_simulations <- 100
+distribution_shapes <- c("right skewed", "left skewed", "bimodal", "uniform")
+
+# Run simulations
+results <- data.frame()
+for (dist_shape in distribution_shapes) {
+  for (i in 1:n_simulations) {
+    res <- run_simulation(n, dist_shape)
+    results <- rbind(results, c(dist_shape, res[1], res[2]))
+  }
+  
+}
+
+# Convert results to dataframe
+colnames(results) <- c("Distribution", "KS_Statistic", "Chi_Square_Statistic")
+results <- as.data.frame(results)
+results$KS_Statistic <- as.numeric(as.character(results$KS_Statistic))
+results$Chi_Square_Statistic <- as.numeric(as.character(results$Chi_Square_Statistic))
+print(results)
+
+# Analyze results
+summary_results <- results %>%
+  group_by(Distribution) %>%
+  summarize(
+    Mean_KS_Stat = mean(KS_Statistic),
+    Mean_Chi_Square_Stat = mean(Chi_Square_Statistic)
+  )
+
+print(summary_results)
+
+```
+
